@@ -7,7 +7,6 @@ const getRecentConversations = async (req, res) => {
     const limit = 50;
     const offset = (page - 1) * limit;
 
-    // Step 1: Subquery for latest message timestamp per contact
     const latestMessages = await db.Message.findAll({
       include: [{ model: db.Contact }],
       where: {

@@ -8,14 +8,14 @@ const searchConversations = async (req, res) => {
     const limit = 50;
     const offset = (page - 1) * limit;
 
-    const [results] = await db.sequelize.query(
+    const [rawResults] = await db.sequelize.query(
       `
       SELECT DISTINCT ON (m."contactId") m.*, c.*
       FROM "Messages" m
       INNER JOIN "Contacts" c ON m."contactId" = c.id
-      WHERE c.name ILIKE :search
+      WHERE m.content ILIKE :search
+         OR c.name ILIKE :search
          OR c."phoneNumber" ILIKE :search
-         OR m.content ILIKE :search
       ORDER BY m."contactId", m."timestamp" DESC
       LIMIT :limit OFFSET :offset
     `,
@@ -27,6 +27,19 @@ const searchConversations = async (req, res) => {
         },
       }
     );
+
+    const results = rawResults.map((row) => ({
+      ...row,
+      content: row.content
+        ?.replace(/\\r\\n/g, "\n")
+        .replace(/\r\n/g, "\n")
+        .replace(/\\\"/g, '"')
+        .replace(/\\"/g, '"')
+        .trim(),
+      createdAt: new Date(row.createdAt).toLocaleString(),
+      updatedAt: new Date(row.updatedAt).toLocaleString(),
+      timestamp: new Date(row.timestamp).toLocaleString(),
+    }));
 
     res.status(200).json(results);
   } catch (err) {

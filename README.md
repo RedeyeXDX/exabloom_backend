@@ -36,11 +36,10 @@ npm run dev
 
 ## Available Endpoints
 
-Method Route Description
 GET /conversations?page=1 Get 50 most recent conversations
 GET /search/:searchValue?page=1 Search by name, number, or message
-GET /search-by-name/:name?page=1 Search by contact name only
-GET /search-by-phone/:number?page=1 Search by phone number only
+GET search/searchname/:name?page=1 Search by contact name only
+GET search/searchphone/:number?page=1 Search by phone number only
 
 ## Assumptions Made
 
